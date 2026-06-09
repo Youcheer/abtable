@@ -3,23 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Table Generator - Glass Theme</title>
+    <title>Table Generator - Theme Switcher</title>
     <!-- Include html2canvas for downloading the table as an image -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:ital,wght@0,400;0,700;1,700&family=Roboto:wght@500;700;900&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Styles */
+        /* CSS Variables for Light/Dark Theme Switching */
         :root {
-            /* CSS Variables for Customization */
+            /* Table Customization Variables */
             --table-font-size: 1.1em;
             --table-font-family: 'Roboto', sans-serif;
             --table-font-weight: 700;
             --cell-pad-y: 12px;
             --cell-pad-x: 14px;
             --border-thickness: 1px;
+            
+            /* Dark Theme (Default) Colors */
+            --bg-main: radial-gradient(circle at top, #2a0000 0%, #000000 70%);
+            --bg-panel: rgba(30, 30, 30, 0.8);
+            --bg-info: rgba(0, 0, 0, 0.6);
+            --bg-input: rgba(0, 0, 0, 0.8);
+            --text-main: #ffffff;
+            --text-muted: #cccccc;
+            --text-input: #00ff00;
+            --border-input: #444444;
+            --border-panel: rgba(255, 255, 255, 0.1);
+            
+            --capture-bg: #050000;
+            --table-bg: #000000;
+            --row-bg: #050505;
+            --code-color: #ffcc00;
+            --odds-color: #ffcc00;
+            --match-color: #ffffff;
+            
             --header-red-bg: #a00000;
             --inner-border-color: #444444;
             --outer-border-color: #ff0000;
+            --shadow-color: rgba(255, 0, 0, 0.6);
+            --title-header-bg: #000000;
+            --title-header-text: #ffffff;
+            --black-header-bg: #000000;
+            --black-header-text: #ffffff;
+        }
+
+        /* Light Theme Colors */
+        body.light-mode {
+            --bg-main: #f4f7f6;
+            --bg-panel: #ffffff;
+            --bg-info: #f9f9f9;
+            --bg-input: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --text-input: #b30000;
+            --border-input: #cccccc;
+            --border-panel: #e0e0e0;
+            
+            --capture-bg: #ffffff;
+            --table-bg: #ffffff;
+            --row-bg: #fafafa;
+            --code-color: #b30000;
+            --odds-color: #0066cc;
+            --match-color: #333333;
+            
+            --header-red-bg: #cc0000;
+            --inner-border-color: #cccccc;
+            --outer-border-color: #990000;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --title-header-bg: #f0f0f0;
+            --title-header-text: #111111;
+            --black-header-bg: #333333;
+            --black-header-text: #ffffff;
         }
 
         * {
@@ -30,44 +83,73 @@
         
         body {
             font-family: 'Roboto', sans-serif;
-            background: #111;
-            background: radial-gradient(circle at top, #2a0000 0%, #000000 70%);
+            background: var(--bg-main);
             min-height: 100vh;
             padding: 20px;
-            color: white;
+            color: var(--text-main);
+            transition: background 0.3s ease, color 0.3s ease;
         }
         
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
         }
         
+        /* Theme Toggle Button */
+        .theme-toggle-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .btn-theme-toggle {
+            background: var(--bg-panel);
+            color: var(--text-main);
+            border: 1px solid var(--border-input);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: all 0.3s ease;
+        }
+
+        .btn-theme-toggle:hover {
+            transform: translateY(-2px);
+        }
+
         .input-section {
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-panel);
+            border: 1px solid var(--border-panel);
             border-radius: 10px;
             padding: 30px;
             margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
         
         .input-section h2 {
             margin-bottom: 15px;
-            color: #fff;
+            color: var(--text-main);
             font-size: 1.5em;
             font-family: 'Oswald', sans-serif;
             letter-spacing: 1px;
         }
         
         .input-section p {
-            color: #ccc;
+            color: var(--text-muted);
             margin-bottom: 15px;
             font-size: 0.95em;
         }
         
         .info-box {
-            background: rgba(0, 0, 0, 0.6);
-            border-left: 4px solid #cc0000;
+            background: var(--bg-info);
+            border-left: 4px solid var(--header-red-bg);
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 5px;
@@ -75,20 +157,20 @@
         }
         
         .info-box code {
-            background: #111;
+            background: var(--bg-table);
             padding: 2px 6px;
             border-radius: 3px;
             font-weight: bold;
-            color: #ffcc00;
+            color: var(--code-color);
         }
         
         textarea {
             width: 100%;
             height: 200px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #00ff00;
-            border: 1px solid #444;
+            background: var(--bg-input);
+            color: var(--text-input);
+            border: 1px solid var(--border-input);
             border-radius: 5px;
             font-family: monospace;
             font-size: 0.9em;
@@ -98,7 +180,8 @@
         
         textarea:focus {
             outline: none;
-            border-color: #ff0000;
+            border-color: var(--header-red-bg);
+            box-shadow: 0 0 10px var(--shadow-color);
         }
         
         .button-group {
@@ -122,22 +205,22 @@
         }
         
         .btn-generate {
-            background: linear-gradient(to bottom, #cc0000, #800000);
+            background: linear-gradient(to bottom, var(--header-red-bg), #800000);
             color: white;
             flex: 1;
         }
         
         .btn-generate:hover {
-            background: linear-gradient(to bottom, #ff0000, #990000);
+            opacity: 0.9;
         }
         
         .btn-clear {
-            background: #444;
-            color: white;
+            background: var(--border-input);
+            color: var(--text-main);
         }
         
         .btn-clear:hover {
-            background: #666;
+            opacity: 0.8;
         }
 
         .btn-download-png {
@@ -158,8 +241,8 @@
             font-weight: bold;
         }
         
-        .error { background: rgba(90, 16, 16, 0.9); color: #ff9999; border-left: 4px solid #ff0000; }
-        .success { background: rgba(16, 74, 32, 0.9); color: #99ffaa; border-left: 4px solid #00ff00; }
+        .error { background: #f8d7da; color: #721c24; border-left: 4px solid #f5c6cb; }
+        .success { background: #d4edda; color: #155724; border-left: 4px solid #c3e6cb; }
         .show { display: block; }
         
         .table-section {
@@ -173,14 +256,14 @@
 
         /* Customization Controls UI */
         .custom-controls {
-            background: rgba(20, 20, 20, 0.8);
+            background: var(--bg-panel);
             padding: 20px;
             border-radius: 5px;
             margin-bottom: 15px;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            border: 1px solid #444;
+            border: 1px solid var(--border-panel);
         }
 
         .control-group {
@@ -191,21 +274,21 @@
 
         .control-group label {
             font-size: 0.85em;
-            color: #ccc;
+            color: var(--text-muted);
             font-family: 'Roboto', sans-serif;
             font-weight: bold;
         }
 
         .control-group input[type="range"] {
             width: 100%;
-            accent-color: #cc0000;
+            accent-color: var(--header-red-bg);
         }
 
         .control-group select, .control-group input[type="color"] {
             padding: 5px;
-            background: #222;
-            color: white;
-            border: 1px solid #555;
+            background: var(--bg-input);
+            color: var(--text-main);
+            border: 1px solid var(--border-input);
             border-radius: 3px;
             font-family: inherit;
             width: 100%;
@@ -218,7 +301,7 @@
         }
 
         .hint-text {
-            color: #aaa;
+            color: var(--text-muted);
             font-size: 0.9em;
             text-align: center;
             margin-top: 15px;
@@ -228,7 +311,7 @@
         
         /* Capture area */
         #captureArea {
-            background: #050000;
+            background: var(--capture-bg);
             padding: 15px 15px 25px 15px; 
             margin: 0 auto;
             border-radius: 5px;
@@ -236,7 +319,7 @@
             overflow: auto;
             min-width: 600px;
             max-width: 100%;
-            border: 2px dashed #888; 
+            border: 2px dashed var(--border-input); 
         }
 
         #captureArea.downloading {
@@ -249,7 +332,7 @@
         /* Table wrapper */
         .table-wrapper {
             border: var(--border-thickness) solid var(--outer-border-color);
-            box-shadow: 0 0 15px var(--outer-border-color);
+            box-shadow: 0 0 15px var(--shadow-color);
             border-radius: 4px;
             overflow: hidden;
             height: auto;
@@ -261,7 +344,7 @@
             border-collapse: collapse;
             font-family: var(--table-font-family);
             table-layout: fixed; 
-            background: #000;
+            background: var(--table-bg);
         }
         
         th, td {
@@ -283,9 +366,9 @@
             font-size: calc(var(--table-font-size) * 2); 
             font-style: italic;
             font-weight: 700;
-            background: #000;
-            color: #fff;
-            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+            background: var(--title-header-bg);
+            color: var(--title-header-text);
+            text-shadow: 0 0 5px rgba(255,255,255,0.2);
             text-transform: uppercase;
             letter-spacing: 2px;
             padding: var(--cell-pad-y); 
@@ -294,7 +377,8 @@
         }
         
         .red-header {
-            background: linear-gradient(to bottom, var(--header-red-bg), #500000);
+            background: linear-gradient(to bottom, var(--header-red-bg), rgba(0,0,0,0.3));
+            background-color: var(--header-red-bg);
             color: white;
             font-weight: 700;
             letter-spacing: 1px;
@@ -302,15 +386,15 @@
         }
         
         .black-header {
-            background: #000;
-            color: #fff;
+            background: var(--black-header-bg);
+            color: var(--black-header-text);
             font-weight: 700;
             padding: calc(var(--cell-pad-y) * 0.8) var(--cell-pad-x);
         }
         
         /* Body Styling */
         tbody tr {
-            background: #050505;
+            background: var(--row-bg);
         }
         
         .match-cell {
@@ -320,24 +404,24 @@
             font-size: var(--table-font-size);
             white-space: normal;
             line-height: 1.4;
-            color: #fff;
+            color: var(--match-color);
             font-family: var(--table-font-family);
         }
         
         .code-cell {
-            color: #ffcc00; 
+            color: var(--code-color); 
             font-weight: var(--table-font-weight);
             font-size: var(--table-font-size);
         }
 
         .date-time-cell {
-            color: #fff; 
+            color: var(--match-color); 
             font-weight: var(--table-font-weight);
             font-size: var(--table-font-size);
         }
 
         .odds {
-            color: #ffcc00; 
+            color: var(--odds-color); 
             font-weight: var(--table-font-weight);
             font-size: var(--table-font-size);
         }
@@ -353,6 +437,14 @@
 </head>
 <body>
     <div class="container">
+        
+        <!-- Theme Toggle Button -->
+        <div class="theme-toggle-wrapper">
+            <button class="btn-theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">
+                ☀️ Switch to Light Theme
+            </button>
+        </div>
+
         <!-- Data Input Section -->
         <div class="input-section">
             <h2>📋 Data Input</h2>
@@ -387,10 +479,10 @@
             
             <!-- Advanced Customization Controls -->
             <div class="custom-controls">
-                <!-- Font Size -->
+                <!-- Font Size (Max increased to 2.5) -->
                 <div class="control-group">
                     <label for="fontSizeSlider">Font Size</label>
-                    <input type="range" id="fontSizeSlider" min="0.8" max="1.6" step="0.05" value="1.1">
+                    <input type="range" id="fontSizeSlider" min="0.8" max="2.5" step="0.05" value="1.1">
                 </div>
                 <!-- Vertical Padding (Height) -->
                 <div class="control-group">
@@ -471,6 +563,38 @@
     </div>
 
     <script>
+        // Theme Switcher Logic
+        function toggleTheme() {
+            const body = document.body;
+            const themeBtn = document.getElementById('themeToggleBtn');
+            
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                themeBtn.innerHTML = '🌙 Switch to Dark Theme';
+                
+                // Update Color Pickers & CSS Vars for Light Theme defaults
+                document.getElementById('headerColorPicker').value = '#cc0000';
+                document.getElementById('innerBorderColorPicker').value = '#cccccc';
+                document.getElementById('outerBorderColorPicker').value = '#990000';
+                
+                document.documentElement.style.setProperty('--header-red-bg', '#cc0000');
+                document.documentElement.style.setProperty('--inner-border-color', '#cccccc');
+                document.documentElement.style.setProperty('--outer-border-color', '#990000');
+            } else {
+                themeBtn.innerHTML = '☀️ Switch to Light Theme';
+                
+                // Update Color Pickers & CSS Vars for Dark Theme defaults
+                document.getElementById('headerColorPicker').value = '#a00000';
+                document.getElementById('innerBorderColorPicker').value = '#444444';
+                document.getElementById('outerBorderColorPicker').value = '#ff0000';
+                
+                document.documentElement.style.setProperty('--header-red-bg', '#a00000');
+                document.documentElement.style.setProperty('--inner-border-color', '#444444');
+                document.documentElement.style.setProperty('--outer-border-color', '#ff0000');
+            }
+        }
+
         // UI Customization Bindings
         document.getElementById('fontSizeSlider').addEventListener('input', function(e) {
             document.documentElement.style.setProperty('--table-font-size', e.target.value + 'em');
@@ -654,12 +778,15 @@
             window.scrollTo(0, 0);
 
             captureArea.classList.add('downloading');
+            
+            // Check current theme background
+            const isLightMode = document.body.classList.contains('light-mode');
+            const captureBgColor = isLightMode ? '#ffffff' : '#050000';
 
             setTimeout(() => {
-                // Image quality badhane ke liye scale 4 set kiya gaya hai (High Resolution)
                 html2canvas(captureArea, {
-                    backgroundColor: '#050000',
-                    scale: 4,
+                    backgroundColor: captureBgColor, // Dynamic background based on theme
+                    scale: 4, // High Resolution
                     scrollY: 0,
                     useCORS: true
                 }).then(canvas => {
