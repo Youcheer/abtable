@@ -330,6 +330,22 @@
             padding: 15px; 
         }
 
+        /* Added for individual column resizing */
+        .col-resize {
+            resize: horizontal;
+            overflow: hidden;
+            min-width: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #captureArea.downloading .col-resize {
+            resize: none;
+            overflow: visible !important;
+        }
+
         /* Table wrapper */
         .table-wrapper {
             border: var(--border-thickness) solid var(--outer-border-color);
@@ -344,8 +360,9 @@
             height: auto; 
             border-collapse: collapse;
             font-family: var(--table-font-family);
-            table-layout: fixed; 
-            background: var(--table-bg);
+            /* Changed to auto to allow individual column resizing */
+            table-layout: auto; 
+            background: #000;
         }
         
         th, td {
@@ -460,14 +477,13 @@
                 <p><strong>Format (6 Columns):</strong> CODE | DATE | TIME | MATCH | 1 | 2</p>
             </div>
             
-            <textarea id="dataInput" placeholder="0258|15.05|23:00|Aston Villa - Liverpool FC|2.95|3.8|1.76
-0336|16.05|18:00|Chelsea FC - Manchester City|4.5|3.4|1.76
-1541|01.12|17:30|Bayern Munich - FC Cologne|1.15|9.4|13
-1676|17.05|21:00|Sevilla FC - Real Madrid|3.2|3.55|2.2
-0280|17.05|21:00|Atletico Madrid - Girona FC|1.75|3.9|4.5
-0387|17.05|15:30|Manchester United - Nottingham Forest|1.6|4.4|5
-0325|18.05|23:00|Arsenal FC - Burnley FC|1.1|10|24
-1201|19.05|23:15|Chelsea FC - Tottenham Hotspur|2.01|3.6|3.15"></textarea>
+            <textarea id="dataInput" placeholder="3332|18.06|01:30|England vs Croatia|1.74|3.70|4.90
+0564|27.06|00:30|France vs Norway|4.40|3.65|1.83
+1325|14.06|03:30|Brazil vs Morocco|1.65|3.85|5.40
+4314|28.06|05:00|Portugal vs Colombia|3.50|3.35|2.15
+0303|27.06|05:30|Spain vs Uruguay|5.60|4.10|1.60
+1924|16.06|00:30|Belgium vs Egypt|1.70|3.85|5.00
+4513|22.06|22:30|Argentina vs Austria|1.65|3.85|5.40"></textarea>
             
             <div class="button-group">
                 <button class="btn btn-generate" onclick="generateTable()">🔄 Generate Table</button>
@@ -505,20 +521,20 @@
                     <label for="borderSlider">Border Thickness</label>
                     <input type="range" id="borderSlider" min="0" max="5" step="1" value="1">
                 </div>
-                <!-- Header Color -->
-                <div class="control-group">
-                    <label for="headerColorPicker">Header Color</label>
-                    <input type="color" id="headerColorPicker" value="#a00000">
-                </div>
                 <!-- Inner Border Color -->
                 <div class="control-group">
-                    <label for="innerBorderColorPicker">Inner Border Color</label>
+                    <label for="innerBorderColorPicker">Cell Border Color</label>
                     <input type="color" id="innerBorderColorPicker" value="#444444">
                 </div>
                 <!-- Outer Border Color -->
                 <div class="control-group">
-                    <label for="outerBorderColorPicker">Outer Border Color (Glow)</label>
+                    <label for="outerBorderColorPicker">Main Border Color (Glow)</label>
                     <input type="color" id="outerBorderColorPicker" value="#ff0000">
+                </div>
+                <!-- Header Color -->
+                <div class="control-group">
+                    <label for="headerColorPicker">Header Color</label>
+                    <input type="color" id="headerColorPicker" value="#a00000">
                 </div>
                 <!-- Font Style -->
                 <div class="control-group">
@@ -569,70 +585,103 @@
     </div>
 
     <script>
-        // Theme Switcher Logic
+        // 📌 Theme Toggle Logic (Light / Dark mode switcher)
         function toggleTheme() {
             const body = document.body;
             const themeBtn = document.getElementById('themeToggleBtn');
             
             body.classList.toggle('light-mode');
             
+            // Update button text based on current theme
             if (body.classList.contains('light-mode')) {
                 themeBtn.innerHTML = '🌙 Switch to Dark Theme';
-                
-                // Update Color Pickers & CSS Vars for Light Theme defaults
-                document.getElementById('headerColorPicker').value = '#cc0000';
-                document.getElementById('innerBorderColorPicker').value = '#cccccc';
-                document.getElementById('outerBorderColorPicker').value = '#990000';
-                
-                document.documentElement.style.setProperty('--header-red-bg', '#cc0000');
-                document.documentElement.style.setProperty('--inner-border-color', '#cccccc');
-                document.documentElement.style.setProperty('--outer-border-color', '#990000');
             } else {
                 themeBtn.innerHTML = '☀️ Switch to Light Theme';
-                
-                // Update Color Pickers & CSS Vars for Dark Theme defaults
-                document.getElementById('headerColorPicker').value = '#a00000';
-                document.getElementById('innerBorderColorPicker').value = '#444444';
-                document.getElementById('outerBorderColorPicker').value = '#ff0000';
-                
-                document.documentElement.style.setProperty('--header-red-bg', '#a00000');
-                document.documentElement.style.setProperty('--inner-border-color', '#444444');
-                document.documentElement.style.setProperty('--outer-border-color', '#ff0000');
             }
         }
 
         // UI Customization Bindings
         document.getElementById('headingSizeSlider').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--heading-font-size', e.target.value + 'em');
+            document.body.style.setProperty('--heading-font-size', e.target.value + 'em');
         });
         document.getElementById('fontSizeSlider').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--table-font-size', e.target.value + 'em');
+            document.body.style.setProperty('--table-font-size', e.target.value + 'em');
         });
         document.getElementById('padYSlider').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--cell-pad-y', e.target.value + 'px');
+            document.body.style.setProperty('--cell-pad-y', e.target.value + 'px');
         });
         document.getElementById('padXSlider').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--cell-pad-x', e.target.value + 'px');
+            document.body.style.setProperty('--cell-pad-x', e.target.value + 'px');
         });
         document.getElementById('borderSlider').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--border-thickness', e.target.value + 'px');
+            document.body.style.setProperty('--border-thickness', e.target.value + 'px');
         });
         document.getElementById('headerColorPicker').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--header-red-bg', e.target.value);
+            document.body.style.setProperty('--header-red-bg', e.target.value);
         });
         document.getElementById('innerBorderColorPicker').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--inner-border-color', e.target.value);
+            document.body.style.setProperty('--inner-border-color', e.target.value);
         });
         document.getElementById('outerBorderColorPicker').addEventListener('input', function(e) {
-            document.documentElement.style.setProperty('--outer-border-color', e.target.value);
+            document.body.style.setProperty('--outer-border-color', e.target.value);
         });
 
         document.getElementById('fontFamilySelect').addEventListener('change', function(e) {
-            document.documentElement.style.setProperty('--table-font-family', e.target.value);
+            document.body.style.setProperty('--table-font-family', e.target.value);
         });
         document.getElementById('fontWeightSelect').addEventListener('change', function(e) {
-            document.documentElement.style.setProperty('--table-font-weight', e.target.value);
+            document.body.style.setProperty('--table-font-weight', e.target.value);
         });
+
+        // 📌 Country Flags Mapping Dictionary
+        const flagMap = {
+            'england': 'gb-eng', 'croatia': 'hr', 'france': 'fr', 'norway': 'no',
+            'brazil': 'br', 'morocco': 'ma', 'portugal': 'pt', 'colombia': 'co',
+            'spain': 'es', 'uruguay': 'uy', 'belgium': 'be', 'egypt': 'eg',
+            'argentina': 'ar', 'austria': 'at', 'germany': 'de', 'italy': 'it', 
+            'netherlands': 'nl', 'switzerland': 'ch', 'usa': 'us', 'mexico': 'mx', 
+            'japan': 'jp', 'south korea': 'kr', 'wales': 'gb-wls', 'scotland': 'gb-sct', 
+            'denmark': 'dk', 'sweden': 'se', 'poland': 'pl', 'senegal': 'sn',
+            'cameroon': 'cm', 'canada': 'ca', 'ghana': 'gh', 'australia': 'au',
+            'sri lanka': 'lk', 'india': 'in', 'pakistan': 'pk', 'bangladesh': 'bd',
+            'south africa': 'za', 'new zealand': 'nz', 'ivory coast': 'ci', "cote d'ivoire": 'ci'
+        };
+
+        // 📌 Function to format match string with Flags
+        function formatMatchWithFlags(matchText) {
+            let team1 = "", team2 = "", sep = "";
+            
+            if (matchText.includes(" vs ")) {
+                [team1, team2] = matchText.split(" vs ");
+                sep = "vs";
+            } else if (matchText.includes("-")) {
+                [team1, team2] = matchText.split("-");
+                sep = "-";
+            } else {
+                return matchText;
+            }
+
+            team1 = team1.trim();
+            team2 = team2.trim();
+
+            const getFlagHTML = (team) => {
+                const key = team.toLowerCase();
+                if (flagMap[key]) {
+                    // crossorigin="anonymous" is crucial for html2canvas to save the image successfully
+                    return `<img src="https://flagcdn.com/24x18/${flagMap[key]}.png" style="width:24px; height:18px; border-radius:2px; box-shadow:0 0 3px rgba(0,0,0,0.5); object-fit:cover;" crossorigin="anonymous">`;
+                }
+                return '';
+            };
+
+            const flag1 = getFlagHTML(team1);
+            const flag2 = getFlagHTML(team2);
+
+            return `
+                <div style="display:flex; align-items:center; gap:8px;">${flag1} <span>${team1}</span></div>
+                <div style="margin-left: ${flag1 ? '32px' : '0'}; color: var(--text-muted, #888); font-size: 0.9em; margin-top:3px; margin-bottom:3px; font-style:italic;">${sep}</div>
+                <div style="display:flex; align-items:center; gap:8px;">${flag2} <span>${team2}</span></div>
+            `;
+        }
 
         // Generate Table Logic
         function generateTable() {
@@ -702,13 +751,13 @@
                     <th colspan="${colspanVal}" class="title-header" contenteditable="true" id="mainTitle" title="Click to edit">${titleText}</th>
                 </tr>
                 <tr>
-                    <th class="red-header">CODE</th>
-                    <th class="red-header">DATE</th>
-                    <th class="red-header">TIME</th>
-                    <th class="red-header">MATCH</th>
-                    <th class="black-header">1</th>
-                    ${hasX ? '<th class="black-header">X</th>' : ''}
-                    <th class="black-header">2</th>
+                    <th class="red-header"><div class="col-resize">CODE</div></th>
+                    <th class="red-header"><div class="col-resize">DATE</div></th>
+                    <th class="red-header"><div class="col-resize">TIME</div></th>
+                    <th class="red-header"><div class="col-resize">MATCH</div></th>
+                    <th class="black-header"><div class="col-resize">1</div></th>
+                    ${hasX ? '<th class="black-header"><div class="col-resize">X</div></th>' : ''}
+                    <th class="black-header"><div class="col-resize">2</div></th>
                 </tr>
             `;
             
@@ -721,7 +770,7 @@
                 
                 if (hasX && columns.length === 7) {
                     const [code, date, time, match, odd1, oddx, odd2] = columns;
-                    const formattedMatch = match.replace(/\s*-\s*/, ' -<br>');
+                    const formattedMatch = formatMatchWithFlags(match);
                     
                     row.innerHTML = `
                         <td class="code-cell">${code}</td>
@@ -736,7 +785,7 @@
                     validRows++;
                 } else if (!hasX && columns.length === 6) {
                     const [code, date, time, match, odd1, odd2] = columns;
-                    const formattedMatch = match.replace(/\s*-\s*/, ' -<br>');
+                    const formattedMatch = formatMatchWithFlags(match);
 
                     row.innerHTML = `
                         <td class="code-cell">${code}</td>
